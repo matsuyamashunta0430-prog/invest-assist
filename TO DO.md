@@ -12,9 +12,9 @@
 - [x] `git init` & 初期コミット
 - [x] `.gitignore` 作成（Node.js / Next.js / .env / .vscode / .husky/\_）
 - [x] `README.md` 作成（プロジェクト概要のみ、詳細は CLAUDE.md にリンク）
-- [ ] `LICENSE` ファイル（プライベートのため UNLICENSED 表記でも可）
+- [ ] `LICENSE` ファイル（プライベートのため UNLICENSED 表記でも可） → #15
 - [x] GitHub リポジトリ作成（プライベート） → matsuyamashunta0430-prog/invest-assist
-- [ ] main ブランチ保護ルール設定（PR必須・レビュー1）— PR #1 マージ後に設定
+- [ ] main ブランチ保護ルール設定（PR必須・レビュー1） → #11
 
 ### 0.2 Next.js プロジェクト雛形
 
@@ -39,8 +39,8 @@
 
 ### 0.4 UI ライブラリ初期化
 
-- [ ] shadcn/ui 初期化（`pnpm install` 後に `pnpm dlx shadcn@latest init`）
-- [ ] 主要コンポーネント追加（`button`, `card`, `input`, `label`, `slider`, `tabs`, `tooltip`）
+- [ ] shadcn/ui 初期化（必要になったら）— 現状は自前最小実装で代替済み
+- [ ] 主要コンポーネント追加（必要になったら）— Phase 2 以降の複雑 UI が出てきた時点で検討
 - [x] Tailwind v4 安定版指定（`^4.1.0`、ベータ→安定へ修正済み）
 - [x] Noto Sans JP + Inter フォント設定（`next/font/google`、weight 指定、preload: false）
 
@@ -83,70 +83,44 @@
 - [x] S3: 学べるブログページ `/learn/blogs`（ブログ10本カード、`src/data/blogs.ts` 分離）
 - [x] S4: よくある失敗ページ `/learn/mistakes`（5件）
 - [x] S5: About / 免責事項 `/about`
-- [ ] 404 / error ページのカスタム化
-- [ ] OG画像・Twitter カードのメタデータ追加（Codex指摘 M5）
+- [ ] 404 / error ページのカスタム化 → #5
+- [ ] OG画像・Twitter カードのメタデータ追加（Codex指摘 M5）→ #4
 
-### 1.3 レスポンシブ・アクセシビリティ
+### 1.3 レスポンシブ・アクセシビリティ → #7（全項目を統合）
 
-- [ ] モバイル幅（375px）で全画面確認
-- [ ] タブレット幅（768px）／PC（1280px）で確認
-- [ ] キーボード操作で全機能利用可能
-- [ ] aria 属性適切に設定（フォーム・グラフ）
-- [ ] Lighthouse スコア: Performance / Accessibility / Best Practices / SEO すべて 90+
+- [ ] モバイル幅（375px）で全画面確認 → #7
+- [ ] タブレット幅（768px）／PC（1280px）で確認 → #7
+- [ ] キーボード操作で全機能利用可能 → #7
+- [ ] aria 属性適切に設定（フォーム・グラフ）→ #7
+- [ ] Lighthouse スコア: Performance / Accessibility / Best Practices / SEO すべて 90+ → #8
 
 ### 1.4 SEO・メタ
 
-- [ ] `metadata` 各ページ設定（title / description / OG画像）
-- [ ] `sitemap.xml` 自動生成（`next-sitemap` または `app/sitemap.ts`）
-- [ ] `robots.txt`
-- [ ] OG 画像（1200x630）デザイン1種類作成
+- [ ] `metadata` 各ページ設定（title / description / OG画像）→ #4
+- [ ] `sitemap.xml` 自動生成（`next-sitemap` または `app/sitemap.ts`）→ #6
+- [ ] `robots.txt` → #6
+- [ ] OG 画像（1200x630）デザイン1種類作成 → #4
 
 ### 1.5 テスト
 
-- [ ] ユニットテスト: ドメインロジック網羅
-- [ ] コンポーネントテスト: フォーム入力 → 計算結果反映
-- [ ] E2E（Playwright）: トップ → シミュレーター → URL シェア → リロード復元
-- [ ] CI でテスト自動実行
+- [x] ユニットテスト: ドメインロジック網羅（37/37）
+- [ ] コンポーネントテスト: C1〜C6 → #9
+- [ ] E2E（Playwright）: E1〜E10 → #10
+- [x] CI でテスト自動実行（PR #1 で導入済）
 
 ---
 
-## フェーズ 2: 銘柄スクリーニング（拡張、MVP公開後）
+## フェーズ 2: 銘柄スクリーニング（拡張、MVP公開後）→ EPIC #16
 
-### 2.1 DB・データ取得
-
-- [ ] Prisma 導入、`prisma/schema.prisma` 作成
-- [ ] `Stock` モデル定義（コード・社名・市場・時価総額・PER・PBR・ROE・自己資本比率・配当性向・連続増配年数）
-- [ ] PostgreSQL ローカル起動（Docker Compose）
-- [ ] 初期マイグレーション
-- [ ] J-Quants API クライアント実装
-- [ ] 日次バッチ（Cloud Scheduler → Cloud Run Job）で銘柄データ更新
-
-### 2.2 スクリーニング UI
-
-- [ ] 条件フォーム（時価総額・PER・PBR・自己資本比率・配当性向・連続増配）
-- [ ] 結果一覧テーブル（ソート・ページネーション）
-- [ ] 銘柄詳細ページ（指標・指標の意味解説）
-- [ ] お気に入り（ローカルストレージ）
+サブタスクは EPIC #16 のチェックリストで管理。スキーマ仕様書は #17。
 
 ---
 
-## フェーズ 3: 認証＋クイズ（拡張）
-
-- [ ] NextAuth.js (Auth.js v5) + Google OAuth
-- [ ] `User` モデル、セッション管理
-- [ ] クイズ問題データ（ローソク足／チャートパターン）
-- [ ] クイズ画面（4択、解説表示）
-- [ ] 進捗保存・正答率表示
-- [ ] お気に入り銘柄を DB に保存
+## フェーズ 3: 認証＋クイズ（拡張）→ EPIC #18
 
 ---
 
-## フェーズ 4: マルチモーダル・拡張
-
-- [ ] チャート画像アップロード → Claude API でパターン判定
-- [ ] LINE Bot 連携
-- [ ] iDeCo シミュレーター
-- [ ] ダークモード
+## フェーズ 4: マルチモーダル・拡張 → EPIC #19
 
 ---
 
@@ -165,10 +139,10 @@
 - [x] Artifact Registry: `asia-northeast1/invest-assist`
 - [x] Cloud Run サービス初回デプロイ（GitHub Actions 経由、2m56s）
 - [x] サービス URL: https://invest-assist-upj37vyhzq-an.a.run.app
-- [ ] Cloud SQL インスタンス作成（フェーズ2着手時）
-- [ ] Secret Manager にシークレット登録（フェーズ3で NextAuth Secret 等）
-- [ ] カスタムドメイン設定（任意）
-- [ ] `NEXT_PUBLIC_APP_URL` を Cloud Run 環境変数に設定（OG メタの正しい URL のため）
+- [ ] Cloud SQL インスタンス作成（フェーズ2着手時）→ #16 のサブ
+- [ ] Secret Manager にシークレット登録（フェーズ3で NextAuth Secret 等）→ #18 のサブ
+- [ ] カスタムドメイン設定（任意）→ #20
+- [x] `NEXT_PUBLIC_APP_URL` を Cloud Run 環境変数に設定（リビジョン invest-assist-00002-d8s に反映済）
 
 ### I.3 GitHub Actions
 
@@ -177,14 +151,16 @@
 - [x] WIF (Workload Identity Federation) — github-pool/github-provider、リポジトリスコープ制限付き
 - [x] deploy URL を GHA ジョブサマリーに出力
 - [ ] PR コメントへの URL 自動投稿（プレビュー環境構築時に追加）
-- [ ] Branch protection: main は PR + CI green 必須に設定（GitHub UI から手動推奨）
+- [ ] Branch protection: main は PR + CI green 必須 → #11
+- [ ] deploy.yml に paths-ignore で docs 変更を除外 → #13
+- [ ] GitHub Actions Node 20→24 移行 → #14
 
-### I.4 監視
+### I.4 監視 → #12 で統合
 
-- [ ] Cloud Logging で標準出力確認
-- [ ] Cloud Error Reporting 有効化
-- [ ] アラート: エラー率 > 5%、レイテンシ p95 > 2s
-- [ ] uptime チェック（無料枠で）
+- [ ] Cloud Logging で標準出力確認 → #12
+- [ ] Cloud Error Reporting 有効化 → #12
+- [ ] アラート: エラー率 > 5%、レイテンシ p95 > 2s → #12
+- [ ] uptime チェック（無料枠で）→ #12
 
 ---
 
@@ -194,7 +170,8 @@
 - [x] API 仕様書 `docs/api-spec.md`（手順⑪）— URL クエリ仕様 + Phase 2 以降の HTTP API 予定
 - [x] テスト仕様書 `docs/test-spec.md`（手順⑫）— 37件のテスト一覧 + E2E 計画 + カバレッジ目標
 - [x] ドキュメントインデックス `docs/README.md`
-- [ ] Prisma スキーマ定義書 `docs/db-schema.md`（手順⑮、フェーズ2前）
+- [ ] Prisma スキーマ定義書 `docs/db-schema.md`（手順⑮、フェーズ2前）→ #17
+- [ ] テスト仕様書の自動生成（保守性）→ #21
 
 ---
 
@@ -221,7 +198,34 @@
 | ドキュメント      | 5          | 4    | 進行中（80%、Prisma スキーマ書のみ残） |
 | ガードレール      | 5          | 0    | 未着手                                 |
 
-**次にやること**: 手順㉑（残タスクの GitHub Issues 化）、フェーズ1.3〜1.5（A11y/Lighthouse/E2E）、または OG タグ実装。
+**次にやること**: GitHub Issues #4〜#21 から優先順に着手。直近の P1 候補:
+
+- **#11**（main ブランチ保護）— 1分で GitHub UI から設定可
+- **#4**（OG / Twitter メタ）— 1〜2 時間
+- **#10**（E2E E1〜E10）— Phase 1 完成の鍵
+
+## GitHub Issues 一覧
+
+| #   | タイトル                                           | 優先度 |
+| --- | -------------------------------------------------- | ------ |
+| #4  | feat(seo): OG / Twitter メタタグと OG 画像         | P1     |
+| #5  | feat: カスタム 404 と error.tsx                    | P1     |
+| #6  | feat(seo): sitemap.xml / robots.txt / 構造化データ | P1     |
+| #7  | test(a11y): 全画面の a11y / レスポンシブ検証       | P1     |
+| #8  | test: Lighthouse CI 導入と本番計測                 | P1     |
+| #9  | test: コンポーネントテスト C1〜C6                  | P1     |
+| #10 | test: E2E テスト E1〜E10                           | P1     |
+| #11 | infra: main ブランチ保護                           | P1     |
+| #12 | infra: 本番監視                                    | P2     |
+| #13 | infra: deploy.yml paths-ignore                     | P2     |
+| #14 | infra: Node 20→24 移行                             | P2     |
+| #15 | chore: LICENSE                                     | P2     |
+| #16 | [EPIC] Phase 2: スクリーニング                     | P2     |
+| #17 | docs: Prisma スキーマ定義書                        | P2     |
+| #18 | [EPIC] Phase 3: 認証 + クイズ                      | P3     |
+| #19 | [EPIC] Phase 4: マルチモーダル他                   | P3     |
+| #20 | infra: カスタムドメイン                            | P3     |
+| #21 | refactor(test): test-spec.md 自動生成              | P2     |
 
 **本番URL**: https://invest-assist-upj37vyhzq-an.a.run.app
 

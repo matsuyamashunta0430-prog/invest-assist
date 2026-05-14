@@ -10,16 +10,27 @@ export const contentType = "image/png";
 export const dynamic = "force-dynamic";
 
 async function loadNotoSansJP(weight: 700 | 400): Promise<ArrayBuffer> {
+  // UA を最新の Chrome に偽装すると woff2 を含む CSS が返る。サーバー側 fetch でも
+  // Google は UA で出し分けるため必須。
   const cssRes = await fetch(
-    `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}`,
-    { headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } },
+    `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&display=swap`,
+    {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+      },
+    },
   );
   if (!cssRes.ok) throw new Error(`Google Fonts CSS fetch failed: ${cssRes.status}`);
   const css = await cssRes.text();
-  const match = css.match(/url\((https:\/\/[^)]+)\)\s*format\('woff2'\)/);
-  if (!match || !match[1]) throw new Error("Could not extract woff2 URL from Google Fonts CSS");
+  // CSS には複数の @font-face（unicode-range 別）がある。最初の src URL を採用。
+  // format() の引用符・形式に依存しないよう、url(...) だけを抽出する。
+  const match = css.match(/url\((https:\/\/[^)]+)\)/);
+  if (!match || !match[1]) {
+    throw new Error(`Could not extract font URL from Google Fonts CSS (length=${css.length})`);
+  }
   const fontRes = await fetch(match[1]);
-  if (!fontRes.ok) throw new Error(`Font woff2 fetch failed: ${fontRes.status}`);
+  if (!fontRes.ok) throw new Error(`Font fetch failed: ${fontRes.status} (${match[1]})`);
   return fontRes.arrayBuffer();
 }
 

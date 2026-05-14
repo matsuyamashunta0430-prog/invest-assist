@@ -12,8 +12,11 @@ RUN corepack enable
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# NEXT_PUBLIC_APP_URL は build 時に静的置換されるため、ARG として受け取って ENV に渡す
+ARG NEXT_PUBLIC_APP_URL=http://localhost:3000
 ENV NEXT_TELEMETRY_DISABLED=1 \
-    BUILD_STANDALONE=true
+    BUILD_STANDALONE=true \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 RUN pnpm build
 
 # ---- runner ----

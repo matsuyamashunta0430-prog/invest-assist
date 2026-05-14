@@ -14,7 +14,7 @@
 - [x] `README.md` 作成（プロジェクト概要のみ、詳細は CLAUDE.md にリンク）
 - [ ] `LICENSE` ファイル（プライベートのため UNLICENSED 表記でも可） → #15
 - [x] GitHub リポジトリ作成（プライベート） → matsuyamashunta0430-prog/invest-assist
-- [ ] main ブランチ保護ルール設定（PR必須・レビュー1） → #11
+- [x] main ブランチ保護ルール設定（Ruleset で適用、Public 化済） → #11 クローズ
 
 ### 0.2 Next.js プロジェクト雛形
 
@@ -151,7 +151,7 @@
 - [x] WIF (Workload Identity Federation) — github-pool/github-provider、リポジトリスコープ制限付き
 - [x] deploy URL を GHA ジョブサマリーに出力
 - [ ] PR コメントへの URL 自動投稿（プレビュー環境構築時に追加）
-- [ ] Branch protection: main は PR + CI green 必須 → #11
+- [x] Branch protection: main は PR + CI green 必須（Ruleset、`current_user_can_bypass: never`）
 - [ ] deploy.yml に paths-ignore で docs 変更を除外 → #13
 - [ ] GitHub Actions Node 20→24 移行 → #14
 
@@ -200,9 +200,12 @@
 
 **次にやること**: GitHub Issues #4〜#21 から優先順に着手。直近の P1 候補:
 
-- **#11**（main ブランチ保護）— 1分で GitHub UI から設定可
-- **#4**（OG / Twitter メタ）— 1〜2 時間
-- **#10**（E2E E1〜E10）— Phase 1 完成の鍵
+- **#4**（OG / Twitter メタ）— SNS 流入のため、1〜2 時間
+- **#5**（カスタム 404 / error.tsx）— 1 時間
+- **#6**（sitemap.xml / robots.txt）— 30 分
+- **#10**（E2E E1〜E10）— Phase 1 完成度の鍵、半日
+
+**完了**: #11（ブランチ保護）— Public 化 + Ruleset 16387866 適用
 
 ## GitHub Issues 一覧
 

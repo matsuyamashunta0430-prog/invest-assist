@@ -13,16 +13,16 @@ make dev    # http://localhost:3000
 
 ## 主要コマンド
 
-| コマンド | 用途 |
-|---|---|
-| `make init` | 初期セットアップ |
-| `make dev` | 開発サーバー |
-| `make lint` | ESLint + Prettier チェック |
-| `make test` | Vitest（ユニットテスト） |
-| `make test-e2e` | Playwright（E2E） |
-| `make build` | プロダクションビルド |
-| `make docker-build` | Docker イメージビルド |
-| `make deploy` | Cloud Run デプロイ |
+| コマンド            | 用途                       |
+| ------------------- | -------------------------- |
+| `make init`         | 初期セットアップ           |
+| `make dev`          | 開発サーバー               |
+| `make lint`         | ESLint + Prettier チェック |
+| `make test`         | Vitest（ユニットテスト）   |
+| `make test-e2e`     | Playwright（E2E）          |
+| `make build`        | プロダクションビルド       |
+| `make docker-build` | Docker イメージビルド      |
+| `make deploy`       | Cloud Run デプロイ         |
 
 ## 開発環境
 

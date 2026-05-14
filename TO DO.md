@@ -10,7 +10,7 @@
 ### 0.1 リポジトリ・基本構成
 
 - [x] `git init` & 初期コミット
-- [x] `.gitignore` 作成（Node.js / Next.js / .env / .vscode / .husky/_）
+- [x] `.gitignore` 作成（Node.js / Next.js / .env / .vscode / .husky/\_）
 - [x] `README.md` 作成（プロジェクト概要のみ、詳細は CLAUDE.md にリンク）
 - [ ] `LICENSE` ファイル（プライベートのため UNLICENSED 表記でも可）
 - [ ] GitHub リポジトリ作成（プライベート） → `gh repo create`
@@ -33,8 +33,9 @@
 - [x] Husky + lint-staged 設定（`.husky/pre-commit`、`prepare: husky || true`）
 - [x] commitlint 設定（`commitlint.config.mjs`、`.husky/commit-msg`）
 - [x] `Makefile` 作成（`init / dev / lint / format / test / test-e2e / tsc / build / docker-build / deploy / clean`）
-- [ ] `pnpm install` 実行＆ lockfile コミット ← 次タスク
-- [ ] `pnpm lint` `pnpm tsc` `pnpm build` がローカルで通ることを確認
+- [x] `pnpm install` 実行＆ lockfile コミット（1m7s、Done）
+- [x] `pnpm lint` `pnpm tsc` `pnpm test` がローカルで通ることを確認（35/35 テスト通過）
+- [ ] `pnpm build` がローカルで通ることを確認
 
 ### 0.4 UI ライブラリ初期化
 
@@ -61,12 +62,10 @@
 
 ### 1.1 ドメインロジック（テスト駆動で）
 
-- [ ] `src/lib/simulator/calculate.ts` 作成
-  - 入力: 月額、年利、期間（月）、初期投資額
-  - 出力: 月次の元本／評価額／利益の配列
-- [ ] 月次複利計算ユーティリティのユニットテスト（境界値: 0年、超長期、年利0%、年利マイナス）
-- [ ] フォーマッタ（`formatJPY`、`formatPercent`）と単体テスト
-- [ ] URL クエリ ↔ 入力値の双方向シリアライズ（Zod スキーマで）
+- [x] `src/lib/simulator/calculate.ts` 作成（simulate / summarize / findProfitMilestones / validateInput）
+- [x] 月次複利計算ユニットテスト（calculate.test.ts: 18 件、境界値含む）
+- [x] フォーマッタ単体テスト（utils.test.ts: 8 件、toFixed の浮動小数点バグも修正）
+- [x] URL クエリ ↔ 入力値の双方向シリアライズ（`src/lib/simulator/schema.ts` + ラウンドトリップテスト 9 件）
 
 ### 1.2 画面実装
 
@@ -204,23 +203,23 @@
 
 ## 進捗ダッシュボード
 
-| フェーズ | タスク総数 | 完了 | 状態 |
-|---|---|---|---|
-| 0. 初期化 | 28 | 20 | 進行中（71%） |
-| 1. MVP | 35 | 0 | 未着手 |
-| 2. スクリーニング | 9 | 0 | 未着手 |
-| 3. 認証・クイズ | 7 | 0 | 未着手 |
-| 4. 拡張 | 4 | 0 | 未着手 |
-| インフラ | 14 | 2 | 進行中（Docker関連を前倒し） |
-| ドキュメント | 4 | 0 | 未着手 |
-| ガードレール | 5 | 0 | 未着手 |
+| フェーズ          | タスク総数 | 完了 | 状態                         |
+| ----------------- | ---------- | ---- | ---------------------------- |
+| 0. 初期化         | 29         | 22   | 進行中（76%）                |
+| 1. MVP            | 35         | 4    | 進行中（11%、1.1 完了）      |
+| 2. スクリーニング | 9          | 0    | 未着手                       |
+| 3. 認証・クイズ   | 7          | 0    | 未着手                       |
+| 4. 拡張           | 4          | 0    | 未着手                       |
+| インフラ          | 14         | 2    | 進行中（Docker関連を前倒し） |
+| ドキュメント      | 4          | 0    | 未着手                       |
+| ガードレール      | 5          | 0    | 未着手                       |
 
-**次にやること**: `pnpm install` 実行 → lockfile コミット → `pnpm lint` `pnpm tsc` `pnpm build` 検証 → フェーズ1.1 ドメインロジック実装へ。
+**次にやること**: `pnpm build` 検証 → ドメインロジックの Codex 役レビュー → フェーズ1.2（画面実装）へ。
 
 ## レビュー履歴
 
-| 日付 | レビュアー | 主な指摘 | 対応 |
-|---|---|---|---|
+| 日付       | レビュアー          | 主な指摘                                                                                                                                                                                                                                                                                   | 対応                     |
+| ---------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------ |
 | 2026-05-14 | Codex役エージェント | C1: lint script の `next lint` 依存 / C2: husky prepare の Docker 不整合 / C3: tests/e2e ディレクトリ不在 / H1: Tailwind beta / H2: Noto Sans JP の subsets / H6: Dockerfile 不在 / M4: globals.css フォント変数不整合 / M5: typedRoutes と未実装ルート / M6: tsconfig types 不足 / その他 | 全て本コミットで修正済み |
 
 ---

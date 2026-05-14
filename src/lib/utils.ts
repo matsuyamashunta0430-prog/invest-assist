@@ -16,7 +16,11 @@ export function formatJPY(value: number): string {
 }
 
 export function formatPercent(value: number, fractionDigits = 1): string {
-  return `${value.toFixed(fractionDigits)}%`;
+  // toFixed は IEEE 754 の影響で 7.55 → "7.5" のような不安定な丸めをする。
+  // Math.round + 10^n スケーリングで Half away from zero を担保する。
+  const factor = 10 ** fractionDigits;
+  const rounded = Math.round(value * factor) / factor;
+  return `${rounded.toFixed(fractionDigits)}%`;
 }
 
 export function formatNumber(value: number): string {

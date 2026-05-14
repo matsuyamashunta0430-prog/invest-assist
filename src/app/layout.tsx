@@ -13,14 +13,39 @@ const notoJP = Noto_Sans_JP({
   preload: false,
 });
 
+const SITE_NAME = "invest-assist";
+const SITE_DESCRIPTION =
+  "新NISAつみたて投資をやさしく可視化。月額・利回り・期間から将来資産をシミュレートし、迷わず最初の一歩を踏み出せます。";
+
 export const metadata: Metadata = {
   title: {
-    default: "invest-assist | 投資初心者のためのNISA積立シミュレーター",
-    template: "%s | invest-assist",
+    default: `${SITE_NAME} | 投資初心者のためのNISA積立シミュレーター`,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "新NISAつみたて投資をやさしく可視化。月額・利回り・期間から将来資産をシミュレートし、迷わず最初の一歩を踏み出せます。",
+  description: SITE_DESCRIPTION,
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
+  applicationName: SITE_NAME,
+  authors: [{ name: "invest-assist" }],
+  keywords: [
+    "新NISA",
+    "つみたてNISA",
+    "シミュレーター",
+    "インデックス投資",
+    "投資初心者",
+    "S&P500",
+    "オルカン",
+  ],
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    locale: "ja_JP",
+    // title / description は metadata.title.default / description から継承される
+    // /opengraph-image.tsx が自動で og:image を出力するため、明示指定は不要
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

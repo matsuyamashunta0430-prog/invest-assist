@@ -160,19 +160,24 @@
 
 ### I.2 GCP セットアップ
 
-- [ ] GCP プロジェクト準備（Project ID は後で確定）
-- [ ] Artifact Registry リポジトリ作成
-- [ ] Cloud Run サービス初回デプロイ（手動: `make deploy`）
+- [x] GCP プロジェクト作成: `invest-assist-prod`（billing 紐付け済）
+- [x] API 有効化: run / artifactregistry / cloudbuild / iam / iamcredentials / sts
+- [x] Artifact Registry: `asia-northeast1/invest-assist`
+- [x] Cloud Run サービス初回デプロイ（GitHub Actions 経由、2m56s）
+- [x] サービス URL: https://invest-assist-upj37vyhzq-an.a.run.app
 - [ ] Cloud SQL インスタンス作成（フェーズ2着手時）
-- [ ] Secret Manager にシークレット登録
+- [ ] Secret Manager にシークレット登録（フェーズ3で NextAuth Secret 等）
 - [ ] カスタムドメイン設定（任意）
+- [ ] `NEXT_PUBLIC_APP_URL` を Cloud Run 環境変数に設定（OG メタの正しい URL のため）
 
 ### I.3 GitHub Actions
 
-- [x] `.github/workflows/ci.yml` — PR 時に Lint / Type-check / Test / Build（PR #1、1m19s で green）
-- [ ] `.github/workflows/deploy.yml` — main push で Cloud Run へデプロイ
-- [ ] WIF (Workload Identity Federation) で OIDC 認証セットアップ
-- [ ] デプロイ後の URL を PR コメントに自動投稿
+- [x] `.github/workflows/ci.yml` — PR/push で Lint/tsc/test/build（PR #1、1m19s で green）
+- [x] `.github/workflows/deploy.yml` — main push で Cloud Run へデプロイ（PR #2、2m56s で green）
+- [x] WIF (Workload Identity Federation) — github-pool/github-provider、リポジトリスコープ制限付き
+- [x] deploy URL を GHA ジョブサマリーに出力
+- [ ] PR コメントへの URL 自動投稿（プレビュー環境構築時に追加）
+- [ ] Branch protection: main は PR + CI green 必須に設定（GitHub UI から手動推奨）
 
 ### I.4 監視
 
@@ -204,18 +209,20 @@
 
 ## 進捗ダッシュボード
 
-| フェーズ          | タスク総数 | 完了 | 状態                         |
-| ----------------- | ---------- | ---- | ---------------------------- |
-| 0. 初期化         | 29         | 23   | 進行中（79%）                |
-| 1. MVP            | 37         | 19   | 進行中（51%、1.1+1.2 完了）  |
-| 2. スクリーニング | 9          | 0    | 未着手                       |
-| 3. 認証・クイズ   | 7          | 0    | 未着手                       |
-| 4. 拡張           | 4          | 0    | 未着手                       |
-| インフラ          | 14         | 2    | 進行中（Docker関連を前倒し） |
-| ドキュメント      | 4          | 0    | 未着手                       |
-| ガードレール      | 5          | 0    | 未着手                       |
+| フェーズ          | タスク総数 | 完了 | 状態                            |
+| ----------------- | ---------- | ---- | ------------------------------- |
+| 0. 初期化         | 29         | 23   | 進行中（79%）                   |
+| 1. MVP            | 37         | 19   | 進行中（51%、1.1+1.2 完了）     |
+| 2. スクリーニング | 9          | 0    | 未着手                          |
+| 3. 認証・クイズ   | 7          | 0    | 未着手                          |
+| 4. 拡張           | 4          | 0    | 未着手                          |
+| インフラ          | 16         | 11   | 進行中（69%、本番デプロイ完了） |
+| ドキュメント      | 4          | 0    | 未着手                          |
+| ガードレール      | 5          | 0    | 未着手                          |
 
-**次にやること**: フェーズ1.5（テスト追加）／インフラ（GitHub Actions CI）／GitHub リポジトリ作成。手順⑥⑦㉑（CI/CD・Issue 化）へ進む準備が整っています。
+**次にやること**: 手順⑩⑪⑫（画面/API/テスト仕様書ドキュメント化）、または手順㉑（残タスクの GitHub Issues 化）、または `NEXT_PUBLIC_APP_URL` の Cloud Run 環境変数設定（OG メタ修正）。
+
+**本番URL**: https://invest-assist-upj37vyhzq-an.a.run.app
 
 ## レビュー履歴
 

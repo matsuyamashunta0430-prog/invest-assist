@@ -1,5 +1,9 @@
 import type { MetadataRoute } from "next";
 
+// 静的生成だと NEXT_PUBLIC_APP_URL がビルド時に baked される。Docker ビルド時に
+// env が無いと localhost で固定化されるのを避けるため、runtime 評価する。
+export const dynamic = "force-dynamic";
+
 function getBaseUrl(): string {
   const url = process.env.NEXT_PUBLIC_APP_URL;
   if (!url) {

@@ -41,6 +41,7 @@ jobs:
       - name: Build Docker image
         run: |
           docker build \
+            --build-arg "NEXT_PUBLIC_APP_URL=${{ vars.NEXT_PUBLIC_APP_URL }}" \
             --tag "$IMAGE:${{ github.sha }}" \
             --tag "$IMAGE:latest" \
             .

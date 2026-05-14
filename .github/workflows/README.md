@@ -13,7 +13,28 @@
 
 このワークフローが green になることが、PR を main にマージする前提です。
 
-## `deploy.yml`（次フェーズで追加予定）
+## `deploy.yml` — Cloud Run へのデプロイ
+
+| 項目     | 内容                                                        |
+| -------- | ----------------------------------------------------------- |
+| トリガー | `main` への push、手動実行 (`workflow_dispatch`)            |
+| 認証     | WIF (Workload Identity Federation) で OIDC トークン交換     |
+| ビルド   | Docker マルチステージビルド（Dockerfile）                   |
+| プッシュ | Artifact Registry（asia-northeast1）                        |
+| デプロイ | Cloud Run（min=0 / max=5 / 1CPU / 512Mi / unauthenticated） |
+| 同時実行 | 同じ ref のキューイング（キャンセルしない）                 |
+
+GitHub Variables（リポジトリ単位）:
+
+- `GCP_PROJECT_ID` = invest-assist-prod
+- `GCP_WIF_PROVIDER` = projects/420732943271/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+- `GCP_SERVICE_ACCOUNT` = deploy-sa@invest-assist-prod.iam.gserviceaccount.com
+- `GCP_REGION` = asia-northeast1
+- `GCP_ARTIFACT_REPO` = invest-assist
+
+---
+
+## 旧版メモ — `deploy.yml`（次フェーズで追加予定）
 
 - WIF (Workload Identity Federation) で GCP へ OIDC 認証
 - `gcloud builds submit` で Artifact Registry へイメージ push

@@ -1,9 +1,10 @@
 .PHONY: help init dev lint format test test-e2e tsc build docker-build deploy clean
 
-PROJECT_ID ?= TODO-set-gcp-project-id
+PROJECT_ID ?= invest-assist-prod
 REGION     ?= asia-northeast1
 SERVICE    ?= invest-assist
-IMAGE      ?= $(REGION)-docker.pkg.dev/$(PROJECT_ID)/invest-assist/$(SERVICE)
+ARTIFACT   ?= invest-assist
+IMAGE      ?= $(REGION)-docker.pkg.dev/$(PROJECT_ID)/$(ARTIFACT)/$(SERVICE)
 
 help: ## このヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-15s\033[0m %s\n", $$1, $$2}'
@@ -38,13 +39,20 @@ build: ## プロダクションビルド
 docker-build: ## Docker イメージビルド
 	docker build -t $(SERVICE):latest .
 
-deploy: ## Cloud Run デプロイ
-	gcloud builds submit --tag $(IMAGE):latest
+deploy: ## Cloud Run デプロイ（手動・ローカルから）
+	gcloud auth configure-docker $(REGION)-docker.pkg.dev --quiet --project $(PROJECT_ID)
+	docker build -t $(IMAGE):latest .
+	docker push $(IMAGE):latest
 	gcloud run deploy $(SERVICE) \
 		--image $(IMAGE):latest \
 		--region $(REGION) \
 		--platform managed \
 		--allow-unauthenticated \
+		--port 8080 \
+		--min-instances 0 \
+		--max-instances 5 \
+		--cpu 1 \
+		--memory 512Mi \
 		--project $(PROJECT_ID)
 
 clean: ## ビルド成果物を削除

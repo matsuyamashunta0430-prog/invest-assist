@@ -1,8 +1,15 @@
 /**
- * NISA 積立シミュレーション — 月次複利モデル
+ * NISA 積立シミュレーション — 月次複利モデル（annuity ordinary / 期末払い）
  *
- * 月初に積立額を投入し、月末に月次利率で複利成長する単純化モデル。
- * 実際の投資信託の基準価額変動とは異なるが、初心者の目安として十分な精度。
+ * モデル:
+ *   - 月初に初期投資額が入っている状態でスタート（month=0）
+ *   - 各月の処理: 前月末評価額に月次利率を適用 → 当月積立額を投入
+ *   - これは金融業界標準の "期末払い annuity"（楽天証券・SBI・金融庁シミュレーターと整合）
+ *
+ * 数式: FV = initial × (1+r)^n + monthly × ((1+r)^n - 1) / r
+ *   r = annualRate / 100 / 12, n = months
+ *
+ * 実際の投信は基準価額変動なので近似値だが、初心者の目安として十分。
  */
 
 export interface SimulationInput {
@@ -49,15 +56,17 @@ export function validateInput(input: SimulationInput): void {
 }
 
 /**
- * 月次複利でシミュレーション実行。
+ * 月次複利でシミュレーション実行（期末払い annuity ordinary）。
  * - 開始時点（month=0）: 元本=initialAmount, 評価額=initialAmount
- * - 各月（month=1..months）: 月初に monthlyAmount を投入し、月末に月次利率を適用
+ * - 各月の処理（month=1..months）:
+ *     1) 前月末評価額に月次利率を適用（複利成長）
+ *     2) その後に当月積立額 monthlyAmount を投入
  */
-export function simulate(input: SimulationInput): SimulationPoint[] {
+export function simulate(input: SimulationInput): readonly SimulationPoint[] {
   validateInput(input);
 
   const { initialAmount, monthlyAmount, annualRate, months } = input;
-  const monthlyRate = annualRate / 100 / 12;
+  const monthlyRate = annualRate / 1200; // = annualRate / 100 / 12
 
   const points: SimulationPoint[] = [
     {
@@ -72,11 +81,11 @@ export function simulate(input: SimulationInput): SimulationPoint[] {
   let principal = initialAmount;
 
   for (let m = 1; m <= months; m++) {
-    // 月初に積立
+    // 1) 月末複利成長（前月末評価額に適用）
+    value *= 1 + monthlyRate;
+    // 2) 月末に当月積立を投入
     value += monthlyAmount;
     principal += monthlyAmount;
-    // 月末に複利成長
-    value *= 1 + monthlyRate;
     points.push({
       month: m,
       principal,
@@ -96,10 +105,10 @@ export interface SimulationSummary {
   profitRatePercent: number;
 }
 
-export function summarize(points: SimulationPoint[]): SimulationSummary {
+export function summarize(points: readonly SimulationPoint[]): SimulationSummary {
   const last = points.at(-1);
   if (!last) {
-    return { finalValue: 0, totalPrincipal: 0, totalProfit: 0, profitRatePercent: 0 };
+    throw new Error("summarize requires at least one simulation point");
   }
   const profitRatePercent = last.principal === 0 ? 0 : (last.profit / last.principal) * 100;
   return {
@@ -111,25 +120,26 @@ export function summarize(points: SimulationPoint[]): SimulationSummary {
 }
 
 export interface Milestone {
-  /** 達成した利益額（円） */
-  profit: number;
-  /** 達成月（経過月） */
+  /** しきい値（円） */
+  threshold: number;
+  /** **最初に**しきい値に到達した月。負利率で再度割り込む可能性は考慮しない */
   month: number;
 }
 
 /**
- * 与えられた利益額しきい値の達成月を返す。
- * 達成しなかったしきい値は結果に含まれない。
+ * 各しきい値について、利益が最初に到達した月を返す。
+ * 達成しなかったしきい値は結果に含まれない。負利率時に再度割り込む可能性は考慮しない。
  */
 export function findProfitMilestones(
-  points: SimulationPoint[],
+  points: readonly SimulationPoint[],
   thresholds: readonly number[],
 ): Milestone[] {
+  const sorted = [...thresholds].sort((a, b) => a - b);
   const milestones: Milestone[] = [];
-  for (const threshold of thresholds) {
+  for (const threshold of sorted) {
     const hit = points.find((p) => p.profit >= threshold);
     if (hit) {
-      milestones.push({ profit: threshold, month: hit.month });
+      milestones.push({ threshold, month: hit.month });
     }
   }
   return milestones;

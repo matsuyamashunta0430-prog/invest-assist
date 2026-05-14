@@ -64,14 +64,16 @@ describe("simulate", () => {
     expect(last.profit).toBe(0);
   });
 
-  it("produces growth at positive rate (monotonic profit)", () => {
+  it("produces growth at positive rate matching annuity-ordinary formula", () => {
     const points = simulate(base);
     expect(points).toHaveLength(base.months + 1);
     const last = points.at(-1)!;
-    // 月3万 x 240月 = 720万元本、年利5%複利でおおよそ1233万前後（理論値）
+    // 期末払い annuity の理論値:
+    //   FV = monthly × ((1+r)^n - 1) / r, r = 0.05/12, n = 240
+    //   FV = 30000 × ((1.0041667)^240 - 1) / 0.0041667 ≈ 12,330,000 円
+    // 楽天証券・SBI・金融庁シミュレーターと一致するレンジ
     expect(last.principal).toBe(7_200_000);
-    expect(last.value).toBeGreaterThan(12_000_000);
-    expect(last.value).toBeLessThan(13_000_000);
+    expect(last.value).toBeCloseTo(12_330_000, -4); // ±5万円以内
     expect(last.profit).toBeGreaterThan(0);
   });
 
@@ -104,13 +106,8 @@ describe("simulate", () => {
 });
 
 describe("summarize", () => {
-  it("returns zeros for empty points", () => {
-    expect(summarize([])).toEqual({
-      finalValue: 0,
-      totalPrincipal: 0,
-      totalProfit: 0,
-      profitRatePercent: 0,
-    });
+  it("throws on empty points (caller bug)", () => {
+    expect(() => summarize([])).toThrow(/at least one/);
   });
 
   it("computes profit rate", () => {
@@ -128,17 +125,19 @@ describe("summarize", () => {
 });
 
 describe("findProfitMilestones", () => {
-  it("returns milestones in order, skipping unreached thresholds", () => {
+  const ONE_OKU = 100_000_000;
+
+  it("returns milestones in ascending threshold order, skipping unreached", () => {
     const points = simulate(base);
-    const result = findProfitMilestones(points, [1_000_000, 5_000_000, 100_000_000]);
+    const result = findProfitMilestones(points, [5_000_000, 1_000_000, ONE_OKU]);
     expect(result).toHaveLength(2); // 1億は届かない
-    expect(result[0]!.profit).toBe(1_000_000);
-    expect(result[1]!.profit).toBe(5_000_000);
+    expect(result[0]!.threshold).toBe(1_000_000);
+    expect(result[1]!.threshold).toBe(5_000_000);
     expect(result[0]!.month).toBeLessThan(result[1]!.month);
   });
 
   it("returns empty if no thresholds met", () => {
     const points = simulate({ ...base, months: 12, monthlyAmount: 1_000 });
-    expect(findProfitMilestones(points, [100_000_000])).toEqual([]);
+    expect(findProfitMilestones(points, [ONE_OKU])).toEqual([]);
   });
 });

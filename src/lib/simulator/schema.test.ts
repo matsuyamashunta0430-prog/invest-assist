@@ -67,4 +67,15 @@ describe("toQueryString / fromSearchParams round-trip", () => {
     expect(parsed.rate).toBe(5);
     expect(parsed.years).toBe(20);
   });
+
+  it("falls back to defaults on invalid input instead of throwing", () => {
+    // ?rate=999 のような攻撃クエリでも throw せず安全にデフォルトへ
+    const parsed = fromSearchParams(new URLSearchParams("rate=999&years=abc"));
+    expect(parsed).toEqual({ initial: 0, monthly: 30_000, rate: 5, years: 20 });
+  });
+
+  it("treats empty string as default (not 0)", () => {
+    const parsed = fromSearchParams(new URLSearchParams("monthly="));
+    expect(parsed.monthly).toBe(30_000);
+  });
 });

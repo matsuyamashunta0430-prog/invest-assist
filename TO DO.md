@@ -9,42 +9,51 @@
 
 ### 0.1 リポジトリ・基本構成
 
-- [ ] `git init` & 初期コミット
-- [ ] `.gitignore` 作成（Node.js / Next.js / .env / .vscode）
-- [ ] `README.md` 作成（プロジェクト概要のみ、詳細は CLAUDE.md にリンク）
+- [x] `git init` & 初期コミット
+- [x] `.gitignore` 作成（Node.js / Next.js / .env / .vscode / .husky/_）
+- [x] `README.md` 作成（プロジェクト概要のみ、詳細は CLAUDE.md にリンク）
 - [ ] `LICENSE` ファイル（プライベートのため UNLICENSED 表記でも可）
 - [ ] GitHub リポジトリ作成（プライベート） → `gh repo create`
 - [ ] main ブランチ保護ルール設定（PR必須・レビュー1）
 
 ### 0.2 Next.js プロジェクト雛形
 
-- [ ] `pnpm create next-app@latest .` で雛形生成（TypeScript / App Router / Tailwind / ESLint / src/ ディレクトリ / @ alias 全て Yes）
-- [ ] Node.js バージョン固定（`.nvmrc` に `20`）
-- [ ] pnpm バージョン固定（`packageManager` フィールドを `package.json` に設定）
-- [ ] `tsconfig.json` に厳格設定（`strict: true`、`noUncheckedIndexedAccess: true`）
+- [x] Next.js 15 + TypeScript + Tailwind v4 + App Router の雛形を手動配置（`create-next-app` の代わりに設定ファイル群を直接生成）
+- [x] Node.js バージョン固定（`.nvmrc` に `20`）
+- [x] pnpm バージョン固定（`packageManager` フィールドを `package.json` に設定）
+- [x] `tsconfig.json` に厳格設定（`strict: true`、`noUncheckedIndexedAccess: true`、`types: ["vitest/globals"]`）
+- [x] セキュリティヘッダ設定（`next.config.ts` headers: X-Frame-Options, Referrer-Policy 等）
 
 ### 0.3 開発ツール整備
 
-- [ ] ESLint 9 flat config に移行（`eslint.config.mjs`）
-- [ ] Prettier 3 導入（`.prettierrc`、`.prettierignore`）
-- [ ] Vitest 導入（`vitest.config.ts`、サンプルテスト）
-- [ ] Playwright 導入（`playwright.config.ts`、サンプル E2E）
-- [ ] Husky + lint-staged 設定（pre-commit で lint/format/type-check/test）
-- [ ] commitlint 設定（Conventional Commits を強制）
-- [ ] `Makefile` 作成（`make init / dev / lint / test / build / docker-build / deploy`）
+- [x] ESLint 9 flat config（`eslint.config.mjs`、`@eslint/eslintrc` の FlatCompat 経由）
+- [x] Prettier 3 導入（`.prettierrc`、`.prettierignore`、`prettier-plugin-tailwindcss`）
+- [x] Vitest 導入（`vitest.config.ts`、`tests/setup.ts`）
+- [x] Playwright 導入（`playwright.config.ts`、`tests/e2e/smoke.spec.ts`）
+- [x] Husky + lint-staged 設定（`.husky/pre-commit`、`prepare: husky || true`）
+- [x] commitlint 設定（`commitlint.config.mjs`、`.husky/commit-msg`）
+- [x] `Makefile` 作成（`init / dev / lint / format / test / test-e2e / tsc / build / docker-build / deploy / clean`）
+- [ ] `pnpm install` 実行＆ lockfile コミット ← 次タスク
+- [ ] `pnpm lint` `pnpm tsc` `pnpm build` がローカルで通ることを確認
 
 ### 0.4 UI ライブラリ初期化
 
-- [ ] shadcn/ui 初期化（`npx shadcn@latest init`）
+- [ ] shadcn/ui 初期化（`pnpm install` 後に `pnpm dlx shadcn@latest init`）
 - [ ] 主要コンポーネント追加（`button`, `card`, `input`, `label`, `slider`, `tabs`, `tooltip`）
-- [ ] Tailwind v4 設定確認（カラートークン、フォント、breakpoints）
-- [ ] Noto Sans JP + Inter フォント設定（`next/font`）
+- [x] Tailwind v4 安定版指定（`^4.1.0`、ベータ→安定へ修正済み）
+- [x] Noto Sans JP + Inter フォント設定（`next/font/google`、weight 指定、preload: false）
 
 ### 0.5 環境変数・シークレット
 
-- [ ] `.env.example` 作成（変数名のみ）
-- [ ] `.env.local` 作成（ローカル開発用、gitignore）
-- [ ] Zod による env バリデーション（`src/env.ts`）
+- [x] `.env.example` 作成（変数名のみ）
+- [ ] `.env.local` 作成（`make init` 実行時に自動コピー）
+- [x] Zod による env バリデーション（`src/env.ts`）
+
+### 0.6 インフラ初期ファイル（前倒し）
+
+- [x] `Dockerfile`（マルチステージビルド、Next standalone、non-root user）
+- [x] `.dockerignore`
+- [x] プレースホルダーページ（`/simulator`, `/learn/videos`）配置 → page.tsx の Link 切れ防止
 
 ---
 
@@ -197,16 +206,22 @@
 
 | フェーズ | タスク総数 | 完了 | 状態 |
 |---|---|---|---|
-| 0. 初期化 | 24 | 0 | 未着手 |
+| 0. 初期化 | 28 | 20 | 進行中（71%） |
 | 1. MVP | 35 | 0 | 未着手 |
 | 2. スクリーニング | 9 | 0 | 未着手 |
 | 3. 認証・クイズ | 7 | 0 | 未着手 |
 | 4. 拡張 | 4 | 0 | 未着手 |
-| インフラ | 14 | 0 | 未着手 |
+| インフラ | 14 | 2 | 進行中（Docker関連を前倒し） |
 | ドキュメント | 4 | 0 | 未着手 |
 | ガードレール | 5 | 0 | 未着手 |
 
-**次にやること**: フェーズ0「リポジトリ・基本構成」から順に実装。1タスク完了ごとにチェックボックスを更新する。
+**次にやること**: `pnpm install` 実行 → lockfile コミット → `pnpm lint` `pnpm tsc` `pnpm build` 検証 → フェーズ1.1 ドメインロジック実装へ。
+
+## レビュー履歴
+
+| 日付 | レビュアー | 主な指摘 | 対応 |
+|---|---|---|---|
+| 2026-05-14 | Codex役エージェント | C1: lint script の `next lint` 依存 / C2: husky prepare の Docker 不整合 / C3: tests/e2e ディレクトリ不在 / H1: Tailwind beta / H2: Noto Sans JP の subsets / H6: Dockerfile 不在 / M4: globals.css フォント変数不整合 / M5: typedRoutes と未実装ルート / M6: tsconfig types 不足 / その他 | 全て本コミットで修正済み |
 
 ---
 

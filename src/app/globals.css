@@ -4,7 +4,8 @@
   --color-primary: #0f172a;
   --color-up: #16a34a;
   --color-down: #dc2626;
-  --font-sans: "Inter", "Noto Sans JP", system-ui, sans-serif;
+  --font-sans:
+    var(--font-inter), var(--font-noto-jp), system-ui, "Hiragino Sans", "Yu Gothic UI", sans-serif;
 }
 
 html,

@@ -3,7 +3,13 @@ import { Inter, Noto_Sans_JP } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const notoJP = Noto_Sans_JP({ subsets: ["latin"], variable: "--font-noto-jp", display: "swap" });
+const notoJP = Noto_Sans_JP({
+  weight: ["400", "500", "700"],
+  subsets: ["latin"],
+  variable: "--font-noto-jp",
+  display: "swap",
+  preload: false,
+});
 
 export const metadata: Metadata = {
   title: {

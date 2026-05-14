@@ -35,6 +35,9 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 
+# husky internal
+.husky/_/
+
 # misc
 *.tsbuildinfo
 next-env.d.ts

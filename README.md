@@ -18,10 +18,18 @@ make dev    # http://localhost:3000
 | `make init` | 初期セットアップ |
 | `make dev` | 開発サーバー |
 | `make lint` | ESLint + Prettier チェック |
-| `make test` | Vitest + Playwright |
+| `make test` | Vitest（ユニットテスト） |
+| `make test-e2e` | Playwright（E2E） |
 | `make build` | プロダクションビルド |
 | `make docker-build` | Docker イメージビルド |
 | `make deploy` | Cloud Run デプロイ |
+
+## 開発環境
+
+- Node.js 20+ / pnpm 9+
+- **Windows**: Git Bash + `scoop install make` を推奨（PowerShell 単体では `make` が動きません）
+- Docker Desktop（コンテナビルド検証時）
+- gcloud CLI（デプロイ時）
 
 ## ライセンス
 

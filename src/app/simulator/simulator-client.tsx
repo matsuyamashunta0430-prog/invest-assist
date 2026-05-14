@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useId, useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -35,16 +35,21 @@ interface Props {
 
 const MILESTONES = [1_000_000, 5_000_000, 10_000_000, 50_000_000];
 
+/**
+ * 日本人ユーザー向けに「1億2,345万円」「1,234万円」「9,999円」の3段表記。
+ * 境界の段差を避けるため、1億円超でも万円併記する。
+ */
 function compactJPY(value: number): string {
-  // 1000万以上は「億・万」表記、それ未満は通常通り
+  const sign = value < 0 ? "-" : "";
   const abs = Math.abs(value);
   if (abs >= 100_000_000) {
-    const oku = value / 100_000_000;
-    return `${oku.toFixed(2)}億円`;
+    const oku = Math.floor(abs / 100_000_000);
+    const man = Math.round((abs % 100_000_000) / 10_000);
+    return man === 0 ? `${sign}${oku}億円` : `${sign}${oku}億${man.toLocaleString("ja-JP")}万円`;
   }
   if (abs >= 10_000) {
-    const man = value / 10_000;
-    return `${Math.round(man).toLocaleString("ja-JP")}万円`;
+    const man = Math.round(abs / 10_000);
+    return `${sign}${man.toLocaleString("ja-JP")}万円`;
   }
   return formatJPY(value);
 }
@@ -61,32 +66,76 @@ interface FieldProps {
 }
 
 function Field({ label, unit, hint, value, min, max, step, onChange }: FieldProps) {
+  const id = useId();
+  const inputId = `${id}-input`;
+  const sliderId = `${id}-slider`;
+  const hintId = hint ? `${id}-hint` : undefined;
+  // 入力中のフリッカ防止のためローカル文字列 state を保持し、blur 時に確定
+  const [draft, setDraft] = useState<string | null>(null);
+  const display = draft ?? String(value);
+
+  const commit = useCallback(
+    (raw: string) => {
+      if (raw === "") {
+        setDraft(null);
+        return;
+      }
+      const parsed = Number(raw);
+      if (!Number.isFinite(parsed)) {
+        setDraft(null);
+        return;
+      }
+      onChange(Math.min(max, Math.max(min, parsed)));
+      setDraft(null);
+    },
+    [min, max, onChange],
+  );
+
   return (
     <div className="space-y-2">
       <div className="flex items-baseline justify-between">
-        <Label>{label}</Label>
+        <Label htmlFor={inputId}>{label}</Label>
         <div className="flex items-baseline gap-1">
           <Input
+            id={inputId}
             type="number"
-            value={Number.isFinite(value) ? value : ""}
+            inputMode="decimal"
+            value={display}
             min={min}
             max={max}
             step={step}
-            onChange={(e) => {
-              const raw = e.target.value;
-              if (raw === "") return onChange(min);
-              const parsed = Number(raw);
-              if (!Number.isFinite(parsed)) return;
-              onChange(Math.min(max, Math.max(min, parsed)));
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={(e) => commit(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") commit((e.target as HTMLInputElement).value);
             }}
             className="h-9 w-28 text-right text-sm"
-            aria-label={label}
+            aria-describedby={hintId}
           />
-          <span className="text-sm text-slate-500">{unit}</span>
+          <span className="text-sm text-slate-500" aria-hidden>
+            {unit}
+          </span>
         </div>
       </div>
-      <Slider value={value} min={min} max={max} step={step} onValueChange={onChange} />
-      {hint ? <p className="text-xs text-slate-500">{hint}</p> : null}
+      <Slider
+        id={sliderId}
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        onValueChange={(v) => {
+          setDraft(null);
+          onChange(v);
+        }}
+        aria-label={`${label}（${unit}）`}
+        aria-valuetext={`${value}${unit}`}
+        aria-describedby={hintId}
+      />
+      {hint ? (
+        <p id={hintId} className="text-xs text-slate-500">
+          {hint}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -94,13 +143,19 @@ function Field({ label, unit, hint, value, min, max, step, onChange }: FieldProp
 export function SimulatorClient({ initial }: Props) {
   const [form, setForm] = useState<SimulatorInputForm>(initial);
   const [shareLabel, setShareLabel] = useState<string>("URLでシェア");
+  const [sharing, setSharing] = useState(false);
 
-  const update = <K extends keyof SimulatorInputForm>(key: K, value: SimulatorInputForm[K]) =>
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const update = useCallback(
+    <K extends keyof SimulatorInputForm>(key: K, value: SimulatorInputForm[K]) =>
+      setForm((prev) => ({ ...prev, [key]: value })),
+    [],
+  );
 
   const { summary, milestones, annualPoints } = useMemo(() => {
-    const parsed = simulatorInputSchema.parse(form); // 防御的にもう一度バリデーション
-    const sim = toSimulationInput(parsed);
+    // 防御的バリデーション。失敗してもクラッシュさせずデフォルトへ。
+    const parsed = simulatorInputSchema.safeParse(form);
+    const safe = parsed.success ? parsed.data : simulatorInputSchema.parse({});
+    const sim = toSimulationInput(safe);
     const ps = simulate(sim);
     return {
       summary: summarize(ps),
@@ -109,18 +164,33 @@ export function SimulatorClient({ initial }: Props) {
     };
   }, [form]);
 
-  const onShare = async () => {
-    const url = `${window.location.origin}/simulator?${toQueryString(form)}`;
-    window.history.replaceState(null, "", `?${toQueryString(form)}`);
+  const onShare = useCallback(async () => {
+    if (sharing) return;
+    setSharing(true);
+    const qs = toQueryString(form);
+    const url = `${window.location.origin}/simulator?${qs}`;
+    window.history.replaceState(null, "", `?${qs}`);
+    const canClipboard =
+      typeof navigator !== "undefined" &&
+      typeof navigator.clipboard !== "undefined" &&
+      typeof navigator.clipboard.writeText === "function";
     try {
-      await navigator.clipboard.writeText(url);
-      setShareLabel("URLをコピーしました ✓");
-      setTimeout(() => setShareLabel("URLでシェア"), 2000);
+      if (canClipboard) {
+        await navigator.clipboard.writeText(url);
+        setShareLabel("URLをコピーしました ✓");
+      } else {
+        // フォールバック: URL バー反映だけ済んでいるので案内する
+        setShareLabel("URLバーをコピーしてください");
+      }
     } catch {
-      setShareLabel("クリップボード失敗");
-      setTimeout(() => setShareLabel("URLでシェア"), 2000);
+      setShareLabel("コピー失敗（URLバーから手動で）");
+    } finally {
+      setTimeout(() => {
+        setShareLabel("URLでシェア");
+        setSharing(false);
+      }, 2000);
     }
-  };
+  }, [form, sharing]);
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-10">
@@ -171,7 +241,13 @@ export function SimulatorClient({ initial }: Props) {
             step={10_000}
             onChange={(v) => update("initial", v)}
           />
-          <Button onClick={onShare} variant="secondary" className="w-full">
+          <Button
+            onClick={onShare}
+            variant="secondary"
+            className="w-full"
+            disabled={sharing}
+            aria-busy={sharing}
+          >
             {shareLabel}
           </Button>
         </Card>

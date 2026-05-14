@@ -55,13 +55,16 @@ export function toQueryString(form: SimulatorInputForm): string {
 /**
  * URL クエリから入力値を取り出す。
  * **不正値はデフォルトにフォールバック**（throw しない）— URL は外部入力で 500 を避けるため。
+ * Next 15 の `searchParams` は `string | string[] | undefined` を含むので配列も処理する。
  */
 export function fromSearchParams(
-  searchParams: URLSearchParams | Record<string, string | undefined>,
+  searchParams: URLSearchParams | Record<string, string | string[] | undefined>,
 ): SimulatorInputForm {
   const get = (key: string): string | undefined => {
     if (searchParams instanceof URLSearchParams) return searchParams.get(key) ?? undefined;
-    return searchParams[key];
+    const v = searchParams[key];
+    if (Array.isArray(v)) return v[0]; // 重複キーは最初の値だけ採用
+    return v;
   };
   const raw = {
     initial: get("initial"),

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     "毎月の積立額・想定年利・期間を入力するだけで、将来の資産・利益・マイルストーンをグラフで可視化します。",
 };
 
-type SearchParams = Promise<Record<string, string | undefined>>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export default async function SimulatorPage({ searchParams }: { searchParams: SearchParams }) {
   const raw = await searchParams;

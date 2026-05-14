@@ -13,8 +13,8 @@
 - [x] `.gitignore` 作成（Node.js / Next.js / .env / .vscode / .husky/\_）
 - [x] `README.md` 作成（プロジェクト概要のみ、詳細は CLAUDE.md にリンク）
 - [ ] `LICENSE` ファイル（プライベートのため UNLICENSED 表記でも可）
-- [ ] GitHub リポジトリ作成（プライベート） → `gh repo create`
-- [ ] main ブランチ保護ルール設定（PR必須・レビュー1）
+- [x] GitHub リポジトリ作成（プライベート） → matsuyamashunta0430-prog/invest-assist
+- [ ] main ブランチ保護ルール設定（PR必須・レビュー1）— PR #1 マージ後に設定
 
 ### 0.2 Next.js プロジェクト雛形
 
@@ -169,9 +169,9 @@
 
 ### I.3 GitHub Actions
 
-- [ ] `.github/workflows/ci.yml` — PR 時に Lint / Type-check / Test
+- [x] `.github/workflows/ci.yml` — PR 時に Lint / Type-check / Test / Build（PR #1、1m19s で green）
 - [ ] `.github/workflows/deploy.yml` — main push で Cloud Run へデプロイ
-- [ ] GCP サービスアカウント鍵 → GitHub Secrets 登録（Workload Identity 推奨）
+- [ ] WIF (Workload Identity Federation) で OIDC 認証セットアップ
 - [ ] デプロイ後の URL を PR コメントに自動投稿
 
 ### I.4 監視

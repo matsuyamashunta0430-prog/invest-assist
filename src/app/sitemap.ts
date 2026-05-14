@@ -1,7 +1,18 @@
 import type { MetadataRoute } from "next";
 
+function getBaseUrl(): string {
+  const url = process.env.NEXT_PUBLIC_APP_URL;
+  if (!url) {
+    // 本番でこのフォールバックに落ちると sitemap.xml が壊れる。Cloud Run の
+    // env var が設定されているか必ず確認すること。
+    console.warn("[sitemap] NEXT_PUBLIC_APP_URL not set; falling back to localhost");
+    return "http://localhost:3000";
+  }
+  return url;
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const baseUrl = getBaseUrl();
   const now = new Date();
 
   return [

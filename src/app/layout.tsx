@@ -39,14 +39,11 @@ export const metadata: Metadata = {
     type: "website",
     siteName: SITE_NAME,
     locale: "ja_JP",
-    title: `${SITE_NAME} | 投資初心者のためのNISA積立シミュレーター`,
-    description: SITE_DESCRIPTION,
+    // title / description は metadata.title.default / description から継承される
     // /opengraph-image.tsx が自動で og:image を出力するため、明示指定は不要
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} | 投資初心者のためのNISA積立シミュレーター`,
-    description: SITE_DESCRIPTION,
   },
   robots: { index: true, follow: true },
 };

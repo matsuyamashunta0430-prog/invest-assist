@@ -12,7 +12,9 @@ export default function ErrorBoundary({
   reset: () => void;
 }) {
   useEffect(() => {
-    // 本番では Cloud Error Reporting が自動的にこの console.error を拾う
+    // 'use client' のためブラウザの console に出力される。Cloud Error Reporting が
+    // 自動でブラウザのエラーを拾うことはなく、別途 RUM/Sentry 等を入れる必要がある
+    // （現状は Phase 1 スコープ外、Issue 化候補）。
     console.error("App error:", error);
   }, [error]);
 

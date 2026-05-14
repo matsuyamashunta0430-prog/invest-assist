@@ -1,14 +1,17 @@
-export const metadata = {
+import type { Metadata } from "next";
+import { SimulatorClient } from "./simulator-client";
+import { fromSearchParams } from "@/lib/simulator/schema";
+
+export const metadata: Metadata = {
   title: "新NISA積立シミュレーター",
+  description:
+    "毎月の積立額・想定年利・期間を入力するだけで、将来の資産・利益・マイルストーンをグラフで可視化します。",
 };
 
-export default function SimulatorPage() {
-  return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-2xl font-bold">新NISA積立シミュレーター</h1>
-      <p className="mt-4 text-gray-600">
-        準備中です。フェーズ1の本実装で計算ロジックとグラフを追加します。
-      </p>
-    </main>
-  );
+type SearchParams = Promise<Record<string, string | undefined>>;
+
+export default async function SimulatorPage({ searchParams }: { searchParams: SearchParams }) {
+  const raw = await searchParams;
+  const initial = fromSearchParams(raw);
+  return <SimulatorClient initial={initial} />;
 }

@@ -10,21 +10,19 @@ export const contentType = "image/png";
 export const dynamic = "force-dynamic";
 
 async function loadNotoSansJP(weight: 700 | 400): Promise<ArrayBuffer> {
-  // UA を最新の Chrome に偽装すると woff2 を含む CSS が返る。サーバー側 fetch でも
-  // Google は UA で出し分けるため必須。
+  // Satori（@vercel/og の中身）は **TTF/OTF のみサポートし WOFF2 不可**。
+  // Google Fonts は UA で出し分けるため、TTF を貰うために古い IE 系の UA を使う。
   const cssRes = await fetch(
     `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&display=swap`,
     {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)",
       },
     },
   );
   if (!cssRes.ok) throw new Error(`Google Fonts CSS fetch failed: ${cssRes.status}`);
   const css = await cssRes.text();
-  // CSS には複数の @font-face（unicode-range 別）がある。最初の src URL を採用。
-  // format() の引用符・形式に依存しないよう、url(...) だけを抽出する。
+  // 最初の src URL を抽出（複数 @font-face あり、最初の unicode-range で十分）
   const match = css.match(/url\((https:\/\/[^)]+)\)/);
   if (!match || !match[1]) {
     throw new Error(`Could not extract font URL from Google Fonts CSS (length=${css.length})`);

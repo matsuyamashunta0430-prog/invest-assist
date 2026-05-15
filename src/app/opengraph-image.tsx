@@ -1,40 +1,17 @@
 import { ImageResponse } from "next/og";
 
-export const alt = "invest-assist — 投資初心者のための新NISA積立シミュレーター";
+export const alt = "invest-assist — Beginner-friendly NISA savings simulator (Japanese)";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-// next/og のデフォルトフォントは Latin のみで CJK 豆腐化する。日本語フォントを実行時に
-// fetch する都合で force-dynamic にする（Cloud Run でリクエスト毎生成）。
-// OG 画像のヒット数は SNS ボット中心で多くないため、コスト影響は無視できる程度。
-// Codex C1 / H1 のトレードオフを承知の上で本設定を採用。
+// next/og 内部の Satori は TTF/OTF のみ対応で、Google Fonts/Bunny からの
+// woff2/eot は弾かれる（本番ログで確認済み）。CJK フォントを安定供給する
+// 仕組みは別途必要なため、本 OG 画像は当面 Latin のみで運用し、
+// 日本語版 OG 画像は別 Issue で対応する。
+// Windows ローカルでの @vercel/og prerender バグ回避と Linux ランタイムでの
+// 単純化のため動的生成のまま維持（コスト軽微）。
 export const dynamic = "force-dynamic";
 
-async function loadNotoSansJP(weight: 700 | 400): Promise<ArrayBuffer> {
-  // Satori（@vercel/og の中身）は **TTF/OTF のみサポートし WOFF2 不可**。
-  // Google Fonts は UA で出し分けるため、TTF を貰うために古い IE 系の UA を使う。
-  const cssRes = await fetch(
-    `https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@${weight}&display=swap`,
-    {
-      headers: {
-        "User-Agent": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0)",
-      },
-    },
-  );
-  if (!cssRes.ok) throw new Error(`Google Fonts CSS fetch failed: ${cssRes.status}`);
-  const css = await cssRes.text();
-  // 最初の src URL を抽出（複数 @font-face あり、最初の unicode-range で十分）
-  const match = css.match(/url\((https:\/\/[^)]+)\)/);
-  if (!match || !match[1]) {
-    throw new Error(`Could not extract font URL from Google Fonts CSS (length=${css.length})`);
-  }
-  const fontRes = await fetch(match[1]);
-  if (!fontRes.ok) throw new Error(`Font fetch failed: ${fontRes.status} (${match[1]})`);
-  return fontRes.arrayBuffer();
-}
-
-export default async function OpengraphImage() {
-  const [jpBold, jpRegular] = await Promise.all([loadNotoSansJP(700), loadNotoSansJP(400)]);
-
+export default function OpengraphImage() {
   return new ImageResponse(
     <div
       style={{
@@ -47,53 +24,50 @@ export default async function OpengraphImage() {
         background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
         color: "white",
         padding: "80px",
-        fontFamily: "NotoSansJP",
+        fontFamily: "sans-serif",
       }}
     >
-      <div style={{ fontSize: 28, opacity: 0.7, letterSpacing: "0.05em" }}>invest-assist</div>
+      <div style={{ fontSize: 32, opacity: 0.75, letterSpacing: "0.05em" }}>invest-assist</div>
       <div
         style={{
-          fontSize: 72,
-          fontWeight: 700,
-          lineHeight: 1.1,
-          marginTop: 12,
+          fontSize: 84,
+          fontWeight: 800,
+          lineHeight: 1.05,
+          marginTop: 16,
           letterSpacing: "-0.02em",
         }}
       >
-        投資初心者のための、
+        NISA Savings
       </div>
       <div
         style={{
-          fontSize: 72,
-          fontWeight: 700,
-          lineHeight: 1.1,
-          marginTop: 4,
+          fontSize: 84,
+          fontWeight: 800,
+          lineHeight: 1.05,
           letterSpacing: "-0.02em",
           color: "#86efac",
         }}
       >
-        新NISA積立シミュレーター
+        Simulator
       </div>
-      <div style={{ fontSize: 30, marginTop: 32, opacity: 0.8, lineHeight: 1.4 }}>
-        毎月いくら積み立てれば将来いくらになるか、
-      </div>
-      <div style={{ fontSize: 30, opacity: 0.8, lineHeight: 1.4 }}>
-        スライダーを動かすだけで一目で分かる。
+      <div
+        style={{
+          fontSize: 32,
+          marginTop: 36,
+          opacity: 0.8,
+          lineHeight: 1.4,
+        }}
+      >
+        See how your monthly savings grow.
       </div>
       <div style={{ display: "flex", marginTop: 48, fontSize: 22, opacity: 0.6, gap: 24 }}>
-        <span>NISA積立シミュレーター</span>
+        <span>Simulator</span>
         <span>·</span>
-        <span>厳選コンテンツ20本</span>
+        <span>20 curated resources</span>
         <span>·</span>
-        <span>無料</span>
+        <span>Free</span>
       </div>
     </div>,
-    {
-      ...size,
-      fonts: [
-        { name: "NotoSansJP", data: jpBold, weight: 700, style: "normal" },
-        { name: "NotoSansJP", data: jpRegular, weight: 400, style: "normal" },
-      ],
-    },
+    { ...size },
   );
 }
